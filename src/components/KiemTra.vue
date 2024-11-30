@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from "vue";
 
+// Dữ liệu danh sách điện thoại
 const dienThoais = ref([
   {
     id: 1,
@@ -48,20 +49,30 @@ const newDienThoai = ref({
   gia: "",
 });
 
+// Dữ liệu cho combobox Hãng và Dung Lượng
+const hangOptions = ["Apple", "Samsung", "Oppo"];
+const dungLuongOptions = ["64GB", "128GB", "256GB", "512GB", "1TB"];
+
+// Hàm thêm điện thoại
 const addDienThoai = () => {
   if (
-    newDienThoai.value.id &&
-    newDienThoai.value.ten &&
-    newDienThoai.value.hang &&
-    newDienThoai.value.dungLuong &&
-    newDienThoai.value.gia
+    !newDienThoai.value.id ||
+    !newDienThoai.value.ten ||
+    !newDienThoai.value.hang ||
+    !newDienThoai.value.dungLuong ||
+    !newDienThoai.value.gia ||
+    isNaN(newDienThoai.value.gia) || // Kiểm tra giá là số nguyên
+    newDienThoai.value.gia <= 0 // Kiểm tra giá lớn hơn 0
   ) {
-    dienThoais.value.push({ ...newDienThoai.value });
-    newDienThoai.value = { id: "", ten: "", hang: "", dungLuong: "", gia: "" };
-  } else {
-    alert("Vui lòng nhập đầy đủ thông tin!");
+    alert("Vui lòng nhập đầy đủ thông tin và giá phải là số nguyên lớn hơn 0!");
+    return;
   }
+
+  dienThoais.value.push({ ...newDienThoai.value });
+  newDienThoai.value = { id: "", ten: "", hang: "", dungLuong: "", gia: "" };
 };
+
+// Hàm hiển thị chi tiết điện thoại
 const showDetail = (product) => {
   newDienThoai.value = { ...product };
 };
@@ -69,8 +80,10 @@ const showDetail = (product) => {
 
 <template>
   <div>
+    <!-- Form Thêm Điện Thoại -->
     <form @submit.prevent="addDienThoai">
       <h3>Thêm Điện Thoại Mới</h3>
+
       <div>
         <label for="id">ID:</label>
         <input
@@ -80,6 +93,7 @@ const showDetail = (product) => {
           placeholder="ID điện thoại"
         />
       </div>
+
       <div>
         <label for="ten">Tên:</label>
         <input
@@ -89,36 +103,45 @@ const showDetail = (product) => {
           placeholder="Tên điện thoại"
         />
       </div>
+
       <div>
         <label for="hang">Hãng:</label>
-        <input
-          id="hang"
-          v-model="newDienThoai.hang"
-          type="text"
-          placeholder="Hãng"
-        />
+        <select id="hang" v-model="newDienThoai.hang">
+          <option value="" disabled>Chọn Hãng</option>
+          <option v-for="hang in hangOptions" :key="hang" :value="hang">
+            {{ hang }}
+          </option>
+        </select>
       </div>
+
       <div>
         <label for="dungLuong">Dung Lượng:</label>
-        <input
-          id="dungLuong"
-          v-model="newDienThoai.dungLuong"
-          type="text"
-          placeholder="Dung lượng (VD: 128GB)"
-        />
+        <select id="dungLuong" v-model="newDienThoai.dungLuong">
+          <option value="" disabled>Chọn Dung Lượng</option>
+          <option
+            v-for="dungLuong in dungLuongOptions"
+            :key="dungLuong"
+            :value="dungLuong"
+          >
+            {{ dungLuong }}
+          </option>
+        </select>
       </div>
+
       <div>
         <label for="gia">Giá:</label>
         <input
           id="gia"
           v-model.number="newDienThoai.gia"
-          type="number"
+          type="text"
           placeholder="Giá tiền"
         />
       </div>
+
       <button type="submit">Thêm</button>
     </form>
 
+    <!-- Danh Sách Điện Thoại -->
     <h3>Danh Sách Điện Thoại</h3>
     <table border="1" cellpadding="10">
       <thead>
@@ -158,7 +181,8 @@ label {
   display: inline-block;
   width: 100px;
 }
-input {
+input,
+select {
   padding: 5px;
   width: 300px;
 }
